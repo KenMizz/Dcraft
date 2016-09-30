@@ -11,7 +11,7 @@ WebSite:http://tieba.baidu.com/p/4398735803?share=9105&fr=share
 //Normal
 var msg="Made by YL12"
 //Settings
-var version="Alpha build 2"
+var version="0.2"
 var sdcard=android.os.Environment.getExternalStorageDirectory(). getAbsolutePath() ;
 var GameMode=Level.getGameMode()
 var MinecraftVersion=ModPE.getMinecraftVersion()
@@ -22,6 +22,9 @@ var DefaultLanguage="en_US"
 var StopGameCheck=false
 var ExpValue=0
 var VendingMachineCheck=false
+var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get()
+var package=ctx.getPackageName()
+var NewVersion
 //Fonts
 var MinecraftFont=android.graphics.Typeface.createFromFile(sdcard+"/games/font/mc字体.ttf")//by @小ASD555
 var TerrariaFont=android.graphics.Typeface.createFromFile(sdcard+"/games/font/terraria-font.ttf")//from Terraria game file
@@ -55,6 +58,19 @@ var PlantY
 var PlantZ
 var PlantType
 var PlantTime
+/*UILang(important!)*/
+//Vending Machine
+var VendingMachineUILang_US=["Vending Machine","Coke","Sprite","Sumbit"]
+var VendingMachineUILang_US_backup=["Vending Machine","Coke","Sprite","Sumbit"]
+var VendingMachineUILang_CN=["自动贩卖机","可乐","雪碧","确认"]
+//StartUI
+var Dcraft_StartUILang_US=["Dcraft Made by YL12\nDcraft version:"+version+"\nversion:"+MinecraftVersion+"\npackage:"+package+"","Submit"]
+var Dcraft_StartUILang_US_backup=["Dcraft Made by YL12\nDcraft version:"+version+"\nversion:"+MinecraftVersion+"\npackage:"+package+"","Submit"]
+var Dcraft_StartUILang_CN=["Dcraft 作者:YL12\nDcraft版本:"+version+"\n游戏版本:"+MinecraftVersion+"\n包名:"+package+"","确认"]
+//UpdateCheck
+var Dcraft_UpdateCheckUILang_US=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update"]
+var Dcraft_UpdateCheckUILang_US_backup=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update"]
+var Dcraft_UpdateCheckUILang_CN=["检查更新","新版本:","当前版本:","新版本已更新","不","更新","检查更新失败!","当前没有新版本"]
 /*functions(define by myself)*/
 //addItem(Enchant)
 function addItem(itemid,texturename,mainid,itemname,maxamount,categorytype,enchanttype){
@@ -260,6 +276,7 @@ function SpawnFarm(){
 		if(CurrentPlant[i].PlantTime==0&&CurrentPlant[i].PlantType=="Coal"){
 			setTile(CurrentPlant[i].PlantX,CurrentPlant[i].PlantY,CurrentPlant[i].PlantZ,59,7)
 			setTile(CurrentPlant[i].PlantX,CurrentPlant[i].PlantY+1,CurrentPlant[i].PlantZ,16)
+			CurrentPlant.splice(i,1)
 			}
 			}
 			}
@@ -281,11 +298,15 @@ function writeCurrentPlant(){
 function readCurrentPlant(){
 	var data=readtxt(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir()+"/Dcraft_CurrentPlant.txt")
 	data+=""
-	for(var i in data){
-		var b=data[i].split(",")
-		CurrentPlant.push({PlantType:b[0],PlantTime:b[1],PlantX:b[2],PlantY:b[3],PlantZ:b[4]})
-		}
-		}
+	if(data!=""){
+		data=data.split("\n")
+		for(i in data){
+			var a=data[i].split(",")
+			clientMessage(a[0])
+			CurrentPlant.push({PlantType:""+a[0]+"",PlantTime:a[1],PlantX:a[2],PlantY:a[3],PlantZ:a[4]})
+			}
+			}
+			}
 //FileCheck_CurrentPlant
 function FileCheck_CurrentPlant(){
 	var a=new java.io.File(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir+"/Dcraft_CurrentPlant.txt")
@@ -296,10 +317,85 @@ function FileCheck_CurrentPlant(){
 			readCurrentPlant()
 			}
 			}
+//Dcraft_AutoCheckUpdate(Function from Crazy Weapons Mod,author by Stemo688)
+function Dcraft_AutoCheckUpdate()
+{
+	try
+	{
+		var url = new java.net.URL("https://raw.githubusercontent.com/KenMizz/Dcraft/master/New%20version");
+		var connection = url.openConnection();
+		 
+		var inputStream = connection.getInputStream();
+		 
+		var loadedVersion = "";
+		var bufferedVersionReader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
+		var rowVersion = "";
+
+		while((rowVersion = bufferedVersionReader.readLine()) != null)
+		{
+			loadedVersion += rowVersion;
+		}
+		latestVersion = loadedVersion.split(" ")[0];
+		NewVersion=latestVersion
+		Dcraft_VersionCheck()
+		bufferedVersionReader.close();
+
+	}catch(err)
+	{
+		ctx.runOnUiThread(new java.lang.Runnable()
+		{
+			run: function()
+			{
+				print(Dcraft_UpdateCheckUILang_US[6])
+			}
+		});
+	} 
+}
+//Dcraft_LanguageChange
+function Dcraft_LanguageChange(){
+	if(ModPE.getLanguage()=="zh_CN"){
+		Dcraft_StartUILang_US=Dcraft_StartUILang_CN
+		VendingMachineUILang_US=VendingMachineUILang_CN
+		Dcraft_UpdateCheckUILang_US=Dcraft_UpdateCheckUILang_CN
+		}
+		if(ModPE.getLanguage()=="en_US"){
+			Dcraft_StartUILang_US=Dcraft_StartUILang_US_backup
+			VendingMachineUILang_US=VendingMachineUILang_US_backup
+			Dcraft_UpdateCheckUILang_US=Dcraft_UpdateCheckUILang_US_backup
+			}
+			if(ModPE.getLanguage()!="en_US"||ModPE.getLanguage()!="zh_CN"){
+				Dcraft_StartUILang_US=Dcraft_StartUILang_US_backup
+			VendingMachineUILang_US=VendingMachineUILang_US_backup
+			Dcraft_UpdateCheckUILang_US=Dcraft_UpdateCheckUILang_US_backup
+			}
+			}
+//JumpToURL
+function JumpToURL(URL){
+	ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse(URL)));
+	}
+//Dcraft_Update
+function Dcraft_Update(){
+	if(package!="net.zhuoweizhang.mcpelauncher.pro"&&package!="net.zhuoweizhang.mcpelauncher"){
+		//
+		}
+		else{
+			Dcraft_AutoCheckUpdate()
+			}
+			}
+//Dcraft_VersionCheck
+function Dcraft_VersionCheck(){
+	if(NewVersion=version){
+		print(Dcraft_UpdateCheckUILang_US[7])
+		}
+		else{
+			Dcraft_UpdateCheckUI()
+			}
+			}
 /*functions(Blocklauncher)*/
 //newLevel
 function newLevel(){
-FileCheck_CurrentPlant()
+Dcraft_Update()
+Dcraft_LanguageChange()
 Dcraft_StartUI()
 if(Debug){
 Debug_FileCheck()
@@ -307,7 +403,7 @@ Debug_FileCheck()
 }
 //leaveGame
 function leaveGame(){
-	print(""+version+"")
+	print(msg)
 	if(Debug){
 		Debug_UpdateFile()
 	}
@@ -315,12 +411,12 @@ function leaveGame(){
 //useItem
 function useItem(x,y,z,i,b){
 	if(b==248&&Level.getData(x,y,z)==1&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
-		DrinkText="Coke"
+		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
 		Dcraft_VendingMachineUI()
 		}
 	if(b==248&&Level.getData(x,y,z)==0&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
-		DrinkText="Coke"
+		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
 		Dcraft_VendingMachineUI()
 		}
@@ -368,12 +464,7 @@ function useItem(x,y,z,i,b){
 												if(b==249&&Level.getData(x,y,z)==2&&!Entity.isSneaking(getPlayerEnt())){
 												//Dcraft_ExperienceSaverUI()
 												}
-												if(i==1014&&b==60){
-													setTile(x,y+1,z,59)
-													CurrentPlant.push({PlantType:"Coal",PlantTime:20,PlantX:x,PlantY:y+1,PlantZ:z})
-													writeCurrentPlant()
-													}
-													}
+												}
 //attackHook
 function attackHook(a,v){
 	if(getCarriedItem()==1003){
@@ -454,7 +545,6 @@ defineArmor(1007,"tin_chestplate",0,"Tin Chestplate","armor/tin_1.png",200,300,A
 defineArmor(1008,"tin_leggings",0,"Tin Leggings","armor/tin_2.png",200,300,ArmorType.leggings)//Tin Leggings
 defineArmor(1009,"tin_boots",0,"Tin Boots","armor/tin_2.png",200,300,ArmorType.boots)//Tin Boots
 //Seed
-addItem(1014,"seeds_wheat",0,"Coal Ore Seed",64,ItemCategory.FOOD,EnchantType.withoutEnchant)//Coal Ore Seed
 /*Blocks*/
 //Machine
 Block.defineBlock(248,"Machine",[["machine",6/*底部*/],["machine",5/*顶部*/],["machine",3],["machine",5],["machine",5],["machine",5],["machine",6/*底部*/],["machine",6/*顶部*/],["machine",2],["machine",6],["machine",6],["machine",6]],1,false)
@@ -536,7 +626,6 @@ Item.addFurnaceRecipe(367,1012,0)//Rotten Flesh to CookedFlesh
 //Dcraft_StartUI
 var StartUIScreen=null,StartText_0=null,StartText_1=null,StartSubmitButton=null
 function Dcraft_StartUI(){
-	var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get()
 ctx.runOnUiThread(new java.lang.Runnable({run:function(){
  try{
      var fill=android.view.ViewGroup.LayoutParams.FILL_PARENT
@@ -570,8 +659,7 @@ ctx.runOnUiThread(new java.lang.Runnable({run:function(){
    StartText_1=new android.widget.PopupWindow()
    var layout3 = new android.widget.LinearLayout(ctx)
    var Text_1 = new android.widget.TextView(ctx)
-   var package=ctx.getPackageName()
-   Text_1.setText("Dcraft Made by YL12\nDcraft版本:"+version+"\n游戏版本:"+MinecraftVersion+"\n包名:"+package+"")
+   Text_1.setText(Dcraft_StartUILang_US[0])
    Text_1.setTextColor(getColor("#00FFE8"))
    Text_1.setTypeface(MinecraftFont)
    layout3.addView(Text_1)
@@ -585,7 +673,7 @@ ctx.runOnUiThread(new java.lang.Runnable({run:function(){
    StartSubmitButton=new android.widget.PopupWindow()
    var layout3 = new android.widget.LinearLayout(ctx)
    var SumbitButton = new android.widget.Button(ctx)
-   SumbitButton.setText("Sumbit")
+   SumbitButton.setText(Dcraft_StartUILang_US[1])
    SumbitButton.setTextColor(getColor("#FF1600"))
    SumbitButton.setBackground(SumbitButton_UP)
    SumbitButton.setTypeface(MinecraftFont)
@@ -665,7 +753,7 @@ Dcraft_VendingMachineUI_dismiss()
    var Text_0 = new android.widget.TextView(ctx)
    Text_0.setTypeface(MinecraftFont)
    Text_0.setTextColor(getColor("#00FFBB"))
-   Text_0.setText("VendingMachine")
+   Text_0.setText(VendingMachineUILang_US[0])
    
    layout3.addView(Text_0)
    VendingMachineText_0.setContentView(layout3)
@@ -697,7 +785,7 @@ Level.playSound(getPlayerX(),getPlayerY(),getPlayerZ(),"random.click",1000)
 if(DrinkCheck==1){
 	DrinkCheck=0
 	Drink.setBackground(Drink_Coke)
-	DrinkText="Coke"
+	DrinkText=VendingMachineUILang_US[1]
 	Text_1.setText(DrinkText)
 	}
 }})
@@ -731,7 +819,7 @@ Level.playSound(getPlayerX(),getPlayerY(),getPlayerZ(),"random.click",1000)
 if(DrinkCheck==0){
 	DrinkCheck=1
 	Drink.setBackground(Drink_Sprite)
-	DrinkText="Sprite"
+	DrinkText=VendingMachineUILang_US[2]
 	Text_1.setText(DrinkText)
 	}
 }})
@@ -771,7 +859,7 @@ if(DrinkCheck==0){
    var layout8 = new android.widget.LinearLayout(ctx)
    var SumbitButton = new android.widget.Button(ctx)
    SumbitButton.setBackground(SumbitButton_UP)
-   SumbitButton.setText("Sumbit")
+   SumbitButton.setText(VendingMachineUILang_US[3])
    SumbitButton.setTextColor(getColor("#FFA500"))
    SumbitButton.setTypeface(MinecraftFont)
    SumbitButton.setOnTouchListener(new android.view.View.OnTouchListener(){
@@ -817,8 +905,8 @@ if(DrinkCheck==0){
 			}}
 	}))
 	}
-//Dcraft_BugReport
-function Dcraft_BugReport(){
+//Dcraft_BugReportUI
+function Dcraft_BugReportUI(){
 var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
 ctx.runOnUiThread(new java.lang.Runnable({run:function(){
 window=new android.app.Dialog(ctx);
@@ -849,7 +937,7 @@ if("".equals(editText.getText().toString().trim())){
 data.setData(android.net.Uri.parse("abc993273913@163.com")); 
 data.putExtra(android.content.Intent.EXTRA_SUBJECT, "Bugreport"); 
 data.putExtra(android.content.Intent.EXTRA_TEXT, ""+a+""); 
- com.mojang.minecraftpe.MainActivity.currentMainActivity.get().startActivity(data)
+ctx.startActivity(data)
 		}
 }}));
 var editText=new android.widget.EditText(ctx);
@@ -1148,3 +1236,43 @@ else{
 			}}
 	}))
 	}
+//Dcraft_UpdateCheckUI
+function Dcraft_UpdateCheckUI(){
+var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
+ctx.runOnUiThread(new java.lang.Runnable({run:function(){
+window=new android.app.Dialog(ctx);
+window.setTitle(Dcraft_UpdateCheckUILang_US[0]);
+var textParams=new android.widget.LinearLayout.LayoutParams(android.widget.RelativeLayout.LayoutParams.WRAP_CONTENT,android.widget.RelativeLayout.LayoutParams.WRAP_CONTENT);
+textParams.setMargins(dip2px(ctx,5),0,0,0);
+var layout=new android.widget.LinearLayout(ctx);
+layout.setOrientation(1);
+var layout2=new android.widget.LinearLayout(ctx);
+layout2.setOrientation(1);
+var layout3=new android.widget.ScrollView(ctx);
+var text=new android.widget.TextView(ctx);
+text.setText(Dcraft_UpdateCheckUILang_US[3]);
+text.setTextSize(20);
+text.setTextColor(getColor("#00D2FF"));
+text.setLayoutParams(textParams);
+var button=new android.widget.Button(ctx);
+button.setText(Dcraft_UpdateCheckUILang_US[4]);
+button.setTextSize(20);
+button.setTextColor(getColor("#0061FF"));
+button.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+window.dismiss()
+}}));
+var button2=new android.widget.Button(ctx);
+button2.setText(Dcraft_UpdateCheckUILang_US[5]);
+button2.setTextSize(20);
+button2.setTextColor(getColor("#7C00FF"));
+button2.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+JumpToURL("http://tieba.baidu.com/p/4804043473?share=9105&fr=share")
+}}));
+layout.addView(layout3);
+layout2.addView(text);
+layout2.addView(button);
+layout2.addView(button2);
+layout3.addView(layout2);
+window.setContentView(layout);
+window.show();
+}}))}
