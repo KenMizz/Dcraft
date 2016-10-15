@@ -7,11 +7,12 @@ CC-BY-NC-SA
 WebSite:http://tieba.baidu.com/p/4398735803?share=9105&fr=share
 :)
 */
+/*Mod*/
 /*ints*/
 //Normal
 var msg="Made by YL12"
 //Settings
-var version="b0.3"
+var version="b0.4"
 var sdcard=android.os.Environment.getExternalStorageDirectory(). getAbsolutePath() ;
 var GameMode=Level.getGameMode()
 var MinecraftVersion=ModPE.getMinecraftVersion()
@@ -29,11 +30,14 @@ var UpdateCheck=true
 var isUpdateFile=true
 var isChocolateMilkButton=false
 var money=0
+var Introduction="unknown"
+var StopButton_Show=false
 //Fonts
 var MinecraftFont
 //Entity
 var ChocolateCow
 var Notch
+var KenMizz
 //UIImages
 var CloseButton_UP=android.graphics.drawable.Drawable.createFromStream(ModPE.openInputStreamFromTexturePack("/images/UI/Close_up.png"),null)
 var CloseButton_DOWN=android.graphics.drawable.Drawable.createFromStream(ModPE.openInputStreamFromTexturePack("/images/UI/Close_down.png"),null)
@@ -62,6 +66,14 @@ var PlantY
 var PlantZ
 var PlantType
 var PlantTime
+//Music
+var MusicPlayer=new android.media.MediaPlayer()
+//Time
+var Date=new Date()
+var Month=Date.getMonth()
+var Day=Date.getDate()
+var Hour=Date.getHours()
+var min=Date.getMinutes()
 /*UILang(important!)*/
 //Vending Machine
 var VendingMachineUILang_US=["Vending Machine","Coke","Sprite","Sumbit"]
@@ -86,15 +98,15 @@ var Dcraft_UpdateHelperUILang_CN=["升级帮助","这是你第一次使用Dcraft
 //FontDownloader
 var Dcraft_FontDownloaderUILang_US=["Font Download","you don't have the font,you must download it or you can not see the ui text","Yes","No"]
 var Dcraft_FontDownloaderUILang_US_backup=["Font Download","you don't have the font,you must download it or you can not see the ui text","Yes","No"]
-var Dcraft_FontDownloaderUILang_CN=["字体下载","字体无法找到,你必须下载字体,不然的话UI的文字将无法显示","确认","不"]
-/*Item/tileLang(important)*/
-var ItemLang_US=["Apple Pie","Sprite","Coke","CookedFlesh","CookedChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot"]
-var ItemLang_US_backup=["Apple Pie","Sprite","Coke","Cooked Flesh","Cooked ChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot"]
-var ItemLang_CN=["苹果派","雪碧","可乐","烤腐肉","烤鸡块","自动贩卖机","锡锭","锡剑","大火把","锡锄","锡头盔","锡护甲","锡护腿","锡鞋子","腐烂的苹果","巧克力奶","金币","巧克力","烤胡萝卜"]
-/*getChocolateMilkButton*/
+var Dcraft_FontDownloaderUILang_CN=["字体下载","字体无法找到,你想要下载字体吗,没有的话字体就没有Minecraft风格咯","不","确认","不"]
+//getChocolateMilkButton
 var MilkButtonLang_US="Get Milk"
 var MilkButtonLang_US_backup="Get Milk"
 var MilkButtonLang_CN="取奶"
+/*Item/tileLang(important)*/
+var ItemLang_US=["Apple Pie","Sprite","Coke","CookedFlesh","CookedChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple"]
+var ItemLang_US_backup=["Apple Pie","Sprite","Coke","Cooked Flesh","Cooked ChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple"]
+var ItemLang_CN=["苹果派","雪碧","可乐","烤腐肉","烤鸡块","自动贩卖机","锡锭","锡剑","大火把","锡锄","锡头盔","锡护甲","锡护腿","锡鞋子","腐烂的苹果","巧克力奶","金币","巧克力","烤胡萝卜","巧克力苹果","大苹果"]
 /*functions(define by myself)*/
 //addItem(Enchant)
 function addItem(itemid,texturename,mainid,itemname,maxamount,categorytype,enchanttype){
@@ -119,7 +131,10 @@ function ShowMessage(msg,MessageType){
 			if(MessageType==2){
 				Sever.sendChat(msg)
 				}
-				}
+				if(MessageType==3){
+					print(msg)
+					}
+					}
 //dip2px
 function dip2px(ctx,dips){
 return Math.ceil(dips*ctx.getResources().getDisplayMetrics().density)
@@ -341,8 +356,8 @@ function FileCheck_CurrentPlant(){
 			readCurrentPlant()
 			}
 			}
-//Dcraft_AutoCheckUpdate(Function from Crazy Weapons Mod,author by Stemo688)
-function Dcraft_AutoCheckUpdate()
+//Dcraft_AutoCheckUpdate_version(Function from Crazy Weapons Mod,author by Stemo688)
+function Dcraft_AutoCheckUpdate_version()
 {
 	try
 	{
@@ -405,7 +420,7 @@ function Dcraft_Update(){
 	if(package!="net.zhuoweizhang.mcpelauncher.pro"&&package!="net.zhuoweizhang.mcpelauncher"&&!UpdateCheck&&!isUpdateFile){
 		}
 		else{
-			Dcraft_AutoCheckUpdate()
+			Dcraft_AutoCheckUpdate_version()
 			}
 			}
 //Dcraft_VersionCheck
@@ -461,51 +476,150 @@ function Dcraft_FontCheck(){
 			MinecraftFont=android.graphics.Typeface.createFromFile(sdcard+"/games/font/mcfont.ttf")//by @小ASD555
 			}
 			}
+//Dcraft_writeSettings
+function Dcraft_writeSettings(){
+	var data=""
+	data=data+StopButton_Show+"I"
+	writetxt(sdcard+"/games/com.mojang/DcraftSettings.txt",data)
+	}
+//Dcraft_readSettings
+function Dcraft_readSettings(){
+	var data=readtxt(sdcard+"/games/com.mojang/DcraftSettings.txt");
+	data+=""
+	data=data.split("I")
+	StopButton_Show=data[0]
+	}
+//Dcraft_SettingsFileCheck
+function Dcraft_SettingsFileCheck(){
+	var a=new java.io.File(sdcard+"/games/com.mojang/DcraftSettings.txt")
+	if(!a.exists()){
+		//_(:D)∠)_
+		}
+		else{
+			Dcraft_readSettings()
+			}
+			}
+//add人模型(from @rgdsfgdf的故事)
+function add人模型(renderer)
+{
+model = renderer.getModel();
+model.getPart("head").clear();
+model.getPart("rightArm").clear();
+model.getPart("leftArm").clear();
+model.getPart("rightLeg").clear();
+model.getPart("leftLeg").clear();
+model.getPart("body").clear();
+头 = model.getPart("head");
+身体 = model.getPart("body");
+左手 = model.getPart("leftArm");
+右手 = model.getPart("rightArm");
+左脚 = model.getPart("leftLeg");
+右脚 = model.getPart("rightLeg");
+头.setTextureSize(64,64);
+身体.setTextureSize(64,64);
+左手.setTextureSize(64,64);
+右手.setTextureSize(64,64);
+左脚.setTextureSize(64,64);
+右脚.setTextureSize(64,64);
+头.setTextureOffset(0,0);
+头.setRotationPoint(0,1000,0);
+头.addBox(-3.4,-8,-4,8,8,8,0);
+头.setTextureOffset(32,0,true);
+头.setRotationPoint(0,1000,0); 
+头.addBox(-3.4,-8,-4,8,8,8,0.5);
+身体.setTextureOffset(16,16);
+身体.addBox(-4,0,-2,8,12,4,0);
+身体.setTextureOffset(16,32,true);
+身体.addBox(-4,0,-2,8,12,4,0.5);
+左手.setTextureOffset(40,16);
+左手.addBox(-1,-2,-2,4,12,4,0);
+左手.setTextureOffset(0,32,true);
+左手.addBox(-1,-2,-2,4,12,4,0.5);
+右手.setTextureOffset(40,16);
+右手.addBox(-3,-2,-2,4,12,4,0);
+右手.setTextureOffset(0,32,true);
+右手.addBox(-3,-2,-2,4,12,4,0.5);
+左脚.setTextureOffset(0,16);
+左脚.addBox(-2,0,-2,4,12,4,0);
+左脚.setTextureOffset(0,32,true);
+左脚.addBox(-2,0,-2,4,12,4,0.5);
+右脚.setTextureOffset(0,16);
+右脚.addBox(-2,0,-2,4,12,4,0);
+右脚.setTextureOffset(0,32,true);
+右脚.addBox(-2,0,-2,4,12,4,0.5);
+}
+var 人模型 = Renderer.createHumanoidRenderer()
+add人模型(人模型)
+//Dcraft_Trick
+function Dcraft_Trick(){}
+//Dcraft_modLoad
+function Dcraft_modLoad(){
+	var a=new java.io.File(sdcard+"/games/Dcraftmod/main.dmod")
+	if(a.exists()){
+		ShowMessage("Loading mod",0)
+		Dcraft_readmod()
+		}
+		}
+//Dcraft_readmod
+function Dcraft_readmod(){
+		var a=new java.io.File(sdcard+"/games/Dcraftmod/main.dmod")
+		var reader=new java.io.InputStreamReader(new java.io.FileInputStream(a))
+		var readerB=new java.io.BufferedReader(reader)
+		var line=""
+		line=readerB.readLine()
+		var mdata=line.split(",")
+		var d=mdata[0]+""
+		return d
+		}
 /*functions(Blocklauncher)*/
 //newLevel
 function newLevel(){
 Dcraft_LanguageChange()
+Dcraft_modLoad()
 Dcraft_Update_FileCheck()
 Dcraft_FontCheck()
 Dcraft_StartUI()
-}
+Dcraft_SettingsFileCheck()
+if(StopButton_Show){
+	Dcraft_StopGameButton()
+	}
+	}
 //leaveGame
 function leaveGame(){
 	print(msg)
+	dismissUI(StopGameButton)
 	}
 //useItem
 function useItem(x,y,z,i,b){
-	if(i==1016&&b==248&&Level.getData(x,y,z)==1&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
+	if(i==1512&&b==248&&Level.getData(x,y,z)==1&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
 		money=Player.getCarriedItemCount()
 		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
 		Dcraft_VendingMachineUI()
 		}
-	if(i==1016&&b==248&&Level.getData(x,y,z)==0&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
+	if(i==1512&&b==248&&Level.getData(x,y,z)==0&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
 		money=Player.getCarriedItemCount()
 		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
 		Dcraft_VendingMachineUI()
 		}
 		if(i==276&&Debug){
-			ChocolateCow=Level.spawnMob(x,y+1,z,EntityType.COW)
-			Entity.setMobSkin(ChocolateCow,"mob/ChocolateCow.png")
-			Entity.setNameTag(ChocolateCow,"ChocolateCow")
+			ChocolateCow=Level.spawnMob(x,y+1,z,EntityType.COW,"mob/ChocolateCow.png")
 			}
 			if(b==63&&Debug){
 				Dcraft_editSignUI()
 				}
-				if(i==1005&&(b==2||b==3)){
+				if(i==1516&&(b==2||b==3)){
 					setTile(x,y,z,60)
 					Damagedown(300,1)
 					Level.playSound(x,y,z,"step.gravel",1000)
 					}
-					if(i==1004&&b!=199&&getTile(x,y+2,z)==0){
+					if(i==1510&&!Entity.isSneaking(getPlayerEnt())&&getTile(x,y+2,z)==0){
 						setTile(x,y+1,z,248,0)
 						setTile(x,y+2,z,248,1)
-						addItemInventory(1004,-1,0)
+						addItemInventory(1510,-1,0)
 						}
-						if(i==1010){
+						if(i==1515){
 							setTile(x,y+1,z,50,0)
 							Damagedown(128,1)
 							}
@@ -556,18 +670,24 @@ function useItem(x,y,z,i,b){
 													preventDefault()
 													Dcraft_ComputerUI()
 													}
-													if(i==1017){
+													if(i==1513&&!Entity.isSneaking(getPlayerEnt())){
 														preventDefault()
 														Dcraft_BugReportUI()
 														}
-														}
+														if(i==267&&Debug){
+															KenMizz=Level.spawnMob(x,y+1,z,EntityType.VILLAGER,"mob/pete with glasses.png")
+															Entity.setRenderType(KenMizz,人模型)
+															Entity.setCarriedItem(KenMizz,276,1,0)
+															Entity.setNameTag(KenMizz,"游乐12")
+															}
+															}
 //attackHook
 function attackHook(a,v){
-	if(getCarriedItem()==1003){
-		Damage(1003,4,v)
+	if(getCarriedItem()==1514){
+		Damage(1514,4,v)
 		Damagedown(300,1)
 		}
-			if(getCarriedItem()==1010){
+			if(getCarriedItem()==1515){
 				Entity.setFireTicks(v,6)
 				Damagedown(128,1)
 				}
@@ -578,18 +698,30 @@ function attackHook(a,v){
 						preventDefault()
 						Entity.setCarriedItem(getPlayerEnt(),1015,1,0)
 						}
-						}
+						if(getCarriedItem()==1513&&Entity.getNameTag(v)=="游乐12"){
+							preventDefault()
+							Entity.remove(v)
+							Dcraft_Trick()
+							}
+							else{
+								preventDefault()
+								}
+								if(getCarriedItem()==329){
+									preventDefault()
+									rideAnimal(a,v)
+									}
+									}
 //destroyBlock
 function destroyBlock(x,y,z,s){
 	if(getTile(x,y,z)==248&&Level.getData(x,y,z)==0){
 		Level.destroyBlock(x,y,z,false)
 		Level.destroyBlock(x,y+1,z,false)
-		Level.dropItem(x,y,z,0,1004,1,0)
+		Level.dropItem(x,y,z,0,1510,1,0)
 		}
 		if(getTile(x,y,z)==248&&Level.getData(x,y,z)==1){
 			Level.destroyBlock(x,y,z,false)
 			Level.destroyBlock(x,y-1,z,false)
-			Level.dropItem(x,y,z,0,1004,1,0)
+			Level.dropItem(x,y,z,0,1510,1,0)
 			}
 			if(getTile(x,y,z)==249&&Level.getData(x,y,z)==0&&Level.getGameMode()==0){
 				Level.destroyBlock(x,y,z,false)
@@ -603,10 +735,10 @@ function destroyBlock(x,y,z,s){
 						}
 						if(getTile(x,y,z)==18&&Level.getGameMode()==0){
 							if(Math.random()*100<20){
-								Level.dropItem(x,y,z,0,1014,1,0)
-								}
-								}
-								}
+								Level.dropItem(x,y,z,0,1505,1,0)
+									}
+									}
+									}
 //procCmd
 function procCmd(cmd){
 	var Data=cmd.split(" ")
@@ -630,51 +762,66 @@ function modTick(){
 	}
 //eatHook
 function eatHook(h,s){
-	if(getCarriedItem()==1014){
-		if(Math.random()*100<30)
+	var food=getCarriedItem()
+	if(food==1505){
+		if(Math.random()*100<50){
 		Entity.addEffect(getPlayerEnt(),MobEffect.hunger,20*10,0,false,true)
 		}
 		}
+		if(food==1521){
+			Entity.setHealth(getPlayerEnt(),Entity.getHealth(getPlayerEnt())+5)
+			}
+			}
 //entityAddedHook
 function entityAddedHook(e){
-	if(Entity.getNameTag(e)=="ChocolateCow"){
+	if(Entity.getMobSkin(e)=="mob/ChocolateCow"){
 		Entity.setMobSkin(e,"mob/ChocolateCow.png")
-		Entity.setNameTag(e,"ChocolateCow")
 		}
-		}
+		if(Entity.getEntityTypeId(e)==EntityType.COW){
+			if(Math.random()*100<5){
+				ChocolateCow=Level.spawnMob(Entity.getX(e),Entity.getY(e)+1,Entity.getZ(e),EntityType.COW,"mob/ChocolateCow.png")
+				}
+				}
+				}
 //deathHook
 function deathHook(m,v){
-	if(Entity.getNameTag(v)=="ChocolateCow"){
-		if(Math.random()*100<60)
+	if(Entity.getMobSkin(v)=="mob/ChocolateCow.png"){
+		if(Math.random()*100<80){
 		Level.dropItem(Entity.getX(v),Entity.getY(v),Entity.getZ(v),1018,1,0)
 		}
-		}
+		if(Entity.getEntityTypeId(v)==getPlayerEnt()){
+			Level.spawnMob(Entity.getX(v),Entity.getY(v)+1,Entity.getZ(v),EntityType.ZOMBIE)
+			}
+			}
+			}
 /*Items*/
 //food
-addFood(1000,"ApplePie",0,6,ItemLang_US[0],64)//Apple Pie
-addFood(1001,"Sprite",0,2,ItemLang_US[1],1)//Sprite
-addFood(1002,"Coke",0,2,ItemLang_US[2],1)//Coke
-addFood(1012,"CookedFlesh",0,2,ItemLang_US[3],64)//Cooked Flesh
-addFood(1013,"CookedChickenNugget",0,4,ItemLang_US[4],64)//Cooked ChickenNugget
-addFood(1014,"BakedApple",0,1,ItemLang_US[14],64)//Baked Apple
-addFood(1015,"ChocolateMilk",0,4,ItemLang_US[15],1)//Chocolate Milk
-addFood(1018,"Chocolate",0,4,ItemLang_US[17],64)//Chocolate
-addFood(1019,"CookedCarrot",0,5,ItemLang_US[18],64)//Cooked Carrot
+addFood(1500,"ApplePie",0,6,ItemLang_US[0],64)//Apple Pie
+addFood(1501,"Sprite",0,2,ItemLang_US[1],1)//Sprite
+addFood(1502,"Coke",0,2,ItemLang_US[2],1)//Coke
+addFood(1503,"CookedFlesh",0,2,ItemLang_US[3],64)//Cooked Flesh
+addFood(1504,"CookedChickenNugget",0,4,ItemLang_US[4],64)//Cooked ChickenNugget
+addFood(1505,"BakedApple",0,1,ItemLang_US[14],64)//Baked Apple
+addFood(1506,"ChocolateMilk",0,4,ItemLang_US[15],1)//Chocolate Milk
+addFood(1507,"ChocolateBar",0,4,ItemLang_US[17],64)//Chocolate
+addFood(1508,"CookedCarrot",0,5,ItemLang_US[18],64)//Cooked Carrot
+addFood(1509,"ChocolateApple",0,5,ItemLang_US[19],64)//Chocolate Apple
+addFood(1521,"apple",0,10,ItemLang_US[20],64)//Big Apple
 //normal
-addItem(1004,"Vending machine",0,ItemLang_US[5],1,ItemCategory.FOOD,EnchantType.withoutEnchant)//Vending Machine
-addItem(1011,"tin_ingot",0,ItemLang_US[6],64,ItemCategory.FOOD,EnchantType.withoutEnchant)//Tin Ingot
-addItem(1016,"Coin",0,ItemLang_US[16],64,ItemCategory.FOOD,EntityType.withoutEnchant)//Coin
-addItem(1017,"book_writable",0,"BugReport",64,ItemCategory.FOOD,EntityType.withoutEnchant)//BugReport
+addItem(1510,"Vending machine",0,ItemLang_US[5],1,ItemCategory.FOOD,EnchantType.withoutEnchant)//Vending Machine
+addItem(1511,"tin_ingot",0,ItemLang_US[6],64,ItemCategory.FOOD,EnchantType.withoutEnchant)//Tin Ingot
+addItem(1512,"Coin",0,ItemLang_US[16],64,ItemCategory.FOOD,EnchantType.withoutEnchant)//Coin
+addItem(1513,"book_writable",0,"BugReport",1,ItemCategory.FOOD,EnchantType.withoutEnchant)//BugReport
 //weapon
-defineTool(1003,"tin_sword",0,ItemLang_US[7],EnchantType.weapon,300)//Tin Sword
+defineTool(1514,"tin_sword",0,ItemLang_US[7],EnchantType.weapon,300)//Tin Sword
 //Tool
-defineTool(1010,"big_torch",0,ItemLang_US[8],EnchantType.withoutEnchant,128)//Big Torch
-defineTool(1005,"tin_hoe",0,ItemLang_US[9],EnchantType.withoutEnchant,300)//Tin Hoe
+defineTool(1515,"big_torch",0,ItemLang_US[8],EnchantType.withoutEnchant,128)//Big Torch
+defineTool(1516,"tin_hoe",0,ItemLang_US[9],EnchantType.withoutEnchant,300)//Tin Hoe
 //armor
-defineArmor(1006,"tin_helmet",0,ItemLang_US[10],"armor/tin_1.png",200,300,ArmorType.helmet)//Tin Helmet
-defineArmor(1007,"tin_chestplate",0,ItemLang_US[11],"armor/tin_1.png",200,300,ArmorType.chestplate)//Tin Chestplate
-defineArmor(1008,"tin_leggings",0,ItemLang_US[12],"armor/tin_2.png",200,300,ArmorType.leggings)//Tin Leggings
-defineArmor(1009,"tin_boots",0,ItemLang_US[13],"armor/tin_2.png",200,300,ArmorType.boots)//Tin Boots
+defineArmor(1517,"tin_helmet",0,ItemLang_US[10],"armor/tin_1.png",200,300,ArmorType.helmet)//Tin Helmet
+defineArmor(1518,"tin_chestplate",0,ItemLang_US[11],"armor/tin_1.png",200,300,ArmorType.chestplate)//Tin Chestplate
+defineArmor(1519,"tin_leggings",0,ItemLang_US[12],"armor/tin_2.png",200,300,ArmorType.leggings)//Tin Leggings
+defineArmor(1520,"tin_boots",0,ItemLang_US[13],"armor/tin_2.png",200,300,ArmorType.boots)//Tin Boots
 //Seed
 /*Blocks*/
 //Machine
@@ -708,73 +855,73 @@ Block.setShape(84,0,0,0,1,0.5,1,0)
 Player.addItemCreativeInv(84,1,0)
 /*Recipe(CraftingTable)*/
 //Big Torch
-Item.addShapedRecipe(1010,1,0,[
+Item.addShapedRecipe(1515,1,0,[
 " 11",
 " 21",
 "2  "],["1",173,0,"2",17,0]);
 //Vending Machine
-Item.addShapedRecipe(1004,1,0,[
+Item.addShapedRecipe(1510,1,0,[
 "111",
 "121",
 "111"],["1",265,0,"2",331,0]);
 //Tin Sword
-Item.addShapedRecipe(1003,1,0,[
+Item.addShapedRecipe(1514,1,0,[
 " 1 ",
 " 1 ",
-" 2 "],["1",1011,0,"2",280,0]);
+" 2 "],["1",1511,0,"2",280,0]);
 //Tin Hoe
-Item.addShapedRecipe(1005,1,0,[
+Item.addShapedRecipe(1516,1,0,[
 "11 ",
 " 2 ",
-" 2 "],["1",1011,0,"2",280,0]);
+" 2 "],["1",1511,0,"2",280,0]);
 //Tin Helmet
-Item.addShapedRecipe(1006,1,0,[
+Item.addShapedRecipe(1517,1,0,[
 "111",
 "1 1",
-"   "],["1",1011,0]);
+"   "],["1",1511,0]);
 //Tin Chestplate
-Item.addShapedRecipe(1007,1,0,[
+Item.addShapedRecipe(1518,1,0,[
 "1 1",
 "111",
-"111"],["1",1011,0]);
+"111"],["1",1511,0]);
 //Tin Leggings
-Item.addShapedRecipe(1008,1,0,[
+Item.addShapedRecipe(1519,1,0,[
 "111",
 "1 1",
-"1 1"],["1",1011,0]);
+"1 1"],["1",1511,0]);
 //Tin Boots
-Item.addShapedRecipe(1009,1,0,[
+Item.addShapedRecipe(1520,1,0,[
 "   ",
 "1 1",
-"1 1"],["1",1011,0]);
+"1 1"],["1",1511,0]);
 //Apple Pie
-Item.addShapedRecipe(1000,1,0,[
+Item.addShapedRecipe(1500,1,0,[
 "12 ",
 "3  ",
 "   "],["1",260,0,"2",353,0,"3",344,0]);
 //CookedChickenNugget
-Item.addShapedRecipe(1013,4,0,[
+Item.addShapedRecipe(1504,4,0,[
 " 1 ",
 "   ",
 "   "],["1",366,0])
-//ChocolateCake
-Item.addShapedRecipe(36,1,0,[
-"111",
-"232",
-"444"],["1",1018,0,"2",353,0,"3",344,0,"4",296,0])
 //CarrotCake
 Item.addShapedRecipe(36,1,4,[
 "111",
 "232",
 "444"],["1",391,0,"2",353,0,"3",344,0,"4",296,0])
 //Coin
-Item.addShapedRecipe(1016,1,0,[
+Item.addShapedRecipe(1512,1,0,[
 "11 ",
 "11 ",
 "   "],["1",371,0])
+//Big Apple
+Item.addShapedRecipe(1521,1,0,[
+"111",
+"111",
+"111"],["1",260,0])
 /*Recipe(Furnace)*/
-Item.addFurnaceRecipe(367,1012,0)//Rotten Flesh to Cooked Flesh
-Item.addFurnaceRecipe(391,1019,0)//Carrot to Cooked Carrot
+Item.addFurnaceRecipe(367,1503,0)//Rotten Flesh to Cooked Flesh
+Item.addFurnaceRecipe(391,1508,0)//Carrot to Cooked Carrot
 /*UI*/
 //Dcraft_StartUI
 var StartUIScreen=null,StartText_0=null,StartText_1=null,StartSubmitButton=null
@@ -938,7 +1085,7 @@ Level.playSound(getPlayerX(),getPlayerY(),getPlayerZ(),"random.click",1000)
 if(DrinkCheck==1){
 	DrinkCheck=0
 	Drink.setBackground(Drink_Coke)
-	DrinkText=VendingMachineUILang_US[1]
+	DrinkText=""+VendingMachineUILang_US[1]+"\n2 coin"
 	Text_1.setText(DrinkText)
 	}
 }})
@@ -972,7 +1119,7 @@ Level.playSound(getPlayerX(),getPlayerY(),getPlayerZ(),"random.click",1000)
 if(DrinkCheck==0){
 	DrinkCheck=1
 	Drink.setBackground(Drink_Sprite)
-	DrinkText=VendingMachineUILang_US[2]
+	DrinkText=""+VendingMachineUILang_US[2]+"\n2 coin"
 	Text_1.setText(DrinkText)
 	}
 }})
@@ -1027,15 +1174,15 @@ return false;
 SumbitButton.setOnClickListener(new android.view.View.OnClickListener(){
 onClick: function(v) {
 if(DrinkCheck==0&&money>=2){
-	addItemInventory(1002,1,0)
+	addItemInventory(1502,1,0)
 	money=money-2
-	addItemInventory(1016,-2,0)
+	addItemInventory(1512,-2,0)
 	Show.setText(""+money+"")
 	}
 	else if(DrinkCheck==1&&money>=2){
-		addItemInventory(1001,1,0)
+		addItemInventory(1501,1,0)
 		money=money-2
-		addItemInventory(1016,-2,0)
+		addItemInventory(1512,-2,0)
 		Show.setText(""+money+"")
 		}
 }})
@@ -1050,14 +1197,14 @@ if(DrinkCheck==0&&money>=2){
    VendingMachineText_1=new android.widget.PopupWindow()
    var layout9 = new android.widget.LinearLayout(ctx)
    var Text_1 = new android.widget.TextView(ctx)
-   Text_1.setText(DrinkText)
+   Text_1.setText(""+DrinkText+"\n2 coin")
    Text_1.setTextColor(getColor("#FFFFFF"))
    Text_1.setTypeface(MinecraftFont)
    layout9.addView(Text_1)
    VendingMachineText_1.setContentView(layout9)
    VendingMachineText_1.setWidth(dip2px(ctx,60))
    VendingMachineText_1.setHeight(dip2px(ctx,120))
-   VendingMachineText_1.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.CENTER,0,30);
+   VendingMachineText_1.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.CENTER,0,10);
    
    
    
@@ -1072,21 +1219,8 @@ if(DrinkCheck==0&&money>=2){
    CoinShow.setContentView(layout10)
    CoinShow.setWidth(dip2px(ctx,50))
    CoinShow.setHeight(dip2px(ctx,50))
-   CoinShow.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.CENTER,900,600);
+   CoinShow.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.CENTER,1000,800);
    
-   
-   
-   MoneyShow=new android.widget.PopupWindow()
-   var layout11 = new android.widget.LinearLayout(ctx)
-   var MoneyText = new android.widget.TextView(ctx)
-   MoneyText.setText("2 coin")
-   MoneyText.setTextColor(getColor("#FFFFFF"))
-   MoneyText.setTypeface(MinecraftFont)
-   layout11.addView(MoneyText)
-   MoneyShow.setContentView(layout11)
-   MoneyShow.setWidth(dip2px(ctx,60))
-   MoneyShow.setHeight(dip2px(ctx,120))
-   MoneyShow.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.CENTER,0,500);
    }
 		catch(err){
 			print(err)
@@ -1439,7 +1573,7 @@ text.setTextSize(20);
 text.setTextColor(getColor("#00D2FF"));
 text.setLayoutParams(textParams);
 var text2=new android.widget.TextView(ctx);
-text2.setText(""+Dcraft_UpdateCheckUILang_US[1]+""+NewVersion+"");
+text2.setText(""+Dcraft_UpdateCheckUILang_US[1]+""+NewVersion+"\n"+Dcraft_UpdateCheckUILang_US[2]+""+version+"");
 text2.setTextSize(20);
 text2.setTextColor(getColor("#00D2FF"));
 text2.setLayoutParams(textParams);
@@ -1677,7 +1811,7 @@ button.setTextSize(20);
 button.setTextColor(getColor("#008DFF"));
 button.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
 window.dismiss()
-JumpToURL("https://github.com/KenMizz/FontDownloas/archive/master.zip")
+JumpToURL("https://github.com/KenMizz/FontDownload/archive/master.zip")
 }}));
 var button2=new android.widget.Button(ctx);
 button2.setText(Dcraft_FontDownloaderUILang_US[3]);
