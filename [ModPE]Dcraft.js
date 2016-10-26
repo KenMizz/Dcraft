@@ -12,15 +12,13 @@ WebSite:http://tieba.baidu.com/p/4398735803?share=9105&fr=share
 //Normal
 var msg="Made by YL12"
 //Settings
-var version="b0.4"
+var version="b0.5"
 var sdcard=android.os.Environment.getExternalStorageDirectory(). getAbsolutePath() ;
 var GameMode=Level.getGameMode()
 var MinecraftVersion=ModPE.getMinecraftVersion()
 var PlayerHealth=Entity.getHealth(getPlayerEnt())
 var PlayerName=Player.getName(getPlayerEnt())
 var Debug=false
-var DefaultLanguage="en_US"
-var StopGameCheck=false
 var ExpValue=0
 var VendingMachineCheck=false
 var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get()
@@ -28,10 +26,12 @@ var package=ctx.getPackageName()
 var NewVersion="unknown"
 var UpdateCheck=true
 var isUpdateFile=true
+var AutoCheckUpdateTime=600000
 var isChocolateMilkButton=false
 var money=0
 var Introduction="unknown"
 var StopButton_Show=false
+var adfly="unknown"
 //Fonts
 var MinecraftFont
 //Entity
@@ -68,6 +68,9 @@ var PlantType
 var PlantTime
 //Music
 var MusicPlayer=new android.media.MediaPlayer()
+var isPlayingMusic=false
+var SourceText=""
+var LastPlaySourceText=""
 //Time
 var Date=new Date()
 var Month=Date.getMonth()
@@ -84,9 +87,9 @@ var Dcraft_StartUILang_US=["Dcraft Made by YL12\nDcraft version:"+version+"\nver
 var Dcraft_StartUILang_US_backup=["Dcraft Made by YL12\nDcraft version:"+version+"\nversion:"+MinecraftVersion+"\npackage:"+package+"","Submit"]
 var Dcraft_StartUILang_CN=["Dcraft 作者:YL12\nDcraft版本:"+version+"\n游戏版本:"+MinecraftVersion+"\n包名:"+package+"","确认"]
 //UpdateCheck
-var Dcraft_UpdateCheckUILang_US=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update"]
-var Dcraft_UpdateCheckUILang_US_backup=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update"]
-var Dcraft_UpdateCheckUILang_CN=["检查更新","新版本:","当前版本:","新版本已更新","不","更新","检查更新失败!","当前没有新版本"]
+var Dcraft_UpdateCheckUILang_US=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update","use adf.ly link","adf.ly can help author profit,pleace use adf.ly link"]
+var Dcraft_UpdateCheckUILang_US_backup=["Check Update","New Version:","Dcraft version:","new version avilable","Nope","Yes","connect error!","No New Update","use adf.ly link","adf.ly can help author profit,pleace use adf.ly link"]
+var Dcraft_UpdateCheckUILang_CN=["检查更新","新版本:","当前版本:","新版本已更新","不","更新","检查更新失败!","当前没有新版本","使用adf.ly链接","adf.ly可以帮助作者有一点小盈利,请使用adf.ly链接"]
 //Computer
 var Dcraft_ComputerUILang_US=["Computer","Website","GO!","Email","Email address","Text","Send","Subject"]
 var Dcraft_ComputerUILang_US_backup=["Computer","Website","GO!","Email","Email address","Text","Send","Subject"]
@@ -104,9 +107,13 @@ var MilkButtonLang_US="Get Milk"
 var MilkButtonLang_US_backup="Get Milk"
 var MilkButtonLang_CN="取奶"
 /*Item/tileLang(important)*/
-var ItemLang_US=["Apple Pie","Sprite","Coke","CookedFlesh","CookedChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple"]
-var ItemLang_US_backup=["Apple Pie","Sprite","Coke","Cooked Flesh","Cooked ChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple"]
-var ItemLang_CN=["苹果派","雪碧","可乐","烤腐肉","烤鸡块","自动贩卖机","锡锭","锡剑","大火把","锡锄","锡头盔","锡护甲","锡护腿","锡鞋子","腐烂的苹果","巧克力奶","金币","巧克力","烤胡萝卜","巧克力苹果","大苹果"]
+var ItemLang_US=["Apple Pie","Sprite","Coke","CookedFlesh","CookedChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple","Diamond(try to eat)"]
+var ItemLang_US_backup=["Apple Pie","Sprite","Coke","Cooked Flesh","Cooked ChickenNugget","Vending machine","Tin Ingot","Tin Sword","Big Torch","Tin Hoe","Tin Helmet","Tin Chestplate","Tin Leggings","Tin Boots","Baked Apple","Chocolate Milk","Coin","Chocolate","Cooked Carrot","Chocolate Apple","Big Apple","Diamond(try to eat)"]
+var ItemLang_CN=["苹果派","雪碧","可乐","烤腐肉","烤鸡块","自动贩卖机","锡锭","锡剑","大火把","锡锄","锡头盔","锡护甲","锡护腿","锡鞋子","腐烂的苹果","巧克力奶","金币","巧克力","烤胡萝卜","巧克力苹果","大苹果","钻石(吃一口)"]
+/*Dcraft_MediaPlayerUI*/
+var Dcraft_MediaPlayerUILang_US=["Music","Set Data Source","Source","Start","stop","Looping","please type the source","No music playing","enjoy your music","Music Playing:","last time play:","play last time play"]
+var Dcraft_MediaPlayerUILang_US_backup=["Music","Set Data Source","Source","Start","stop","Looping","please type the source","No music playing","enjoy your music","Music Playing:","last time play:","play last time play"]
+var Dcraft_MediaPlayerUILang_CN=["音乐","设置音乐路径","路径","开始","停止","是否循环","请填写播放路径","当前没有音乐正在播放","享受你的音乐吧","播放中:","上次播放的路径:","播放上次播放的内容"]
 /*functions(define by myself)*/
 //addItem(Enchant)
 function addItem(itemid,texturename,mainid,itemname,maxamount,categorytype,enchanttype){
@@ -262,50 +269,13 @@ function Dcraft_DebugSettingUI_dismiss(){
 	dismissUI(Debug_CloseButton)
 	dismissUI(Debug_ShowInformation_SwitchButton)
 	}
-//Debug_FileCheck
-function Debug_FileCheck(){
-	var DebugFile=new java.io.File(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir()+"/Dcraft_DebugSettings.txt")
-	if(!DebugFile.exists()){
-		clientMessage(ChatColor.RED+"Debug File not exists,creating a new file")
-		writetxt(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir()+"/Dcraft_DebugSettings.txt",""+Level.getWorldName()+"")
-		print("path:"+DebugFile.getAbsolutePath()+"")
-		}
-		else{
-			Debug_readFile()
-			clientMessage(ChatColor.RED+"File exists")
-			}
-			}
-//Debug_UpdateFile
-function Debug_UpdateFile(){
-	var data=""
-	data=data+Level.getWorldName()+"I"+ShowInformationCheck+"I"+SIImageSwitch+"I"
-	writetxt(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir()+"/Dcraft_DebugSettings.txt",data)
-	}
-//Debug_readFile
-function Debug_readFile(){
-	var data=readtxt(sdcard+"/games/com.mojang/minecraftWorlds/"+Level.getWorldDir()+"/Dcraft_DebugSettings.txt");
-	data+=""
-	data=data.split("I")
-	ShowInformationCheck=data[0]
-	SISwitchButtonImage=data[1]
-	SIImageSwitch=data[2]
-	}
-//Debug_SIImageSwitch
-function Debug_SIImageSwitch(){
-	if(SIImageSwitch){
-		SISwitchButtonImage=SwitchButton_MinecraftStyle_on
-		}
-		else{
-			SISwitchButtonImage=SwitchButton_MinecraftStyle_off
-			}
-			}
 //SpawnOre
 function SpawnOre(){
 var XA=getPlayerX()+Math.floor(Math.random()*100)
 var YA=Math.floor(Math.random()*256)
 var ZA=getPlayerZ()+Math.floor(Math.random()*100)
 if(getTile(XA,YA,ZA)==15){
-	setTile(XA,YA,ZA,249,0)
+	setTile(XA,YA,ZA,137,0)
 	}
 	}
 //SpawnFarm
@@ -400,6 +370,7 @@ function Dcraft_LanguageChange(){
 	Dcraft_UpdateHelperUILang_US=Dcraft_UpdateHelperUILang_CN
 	Dcraft_FontDownloaderUILang_US=Dcraft_FontDownloaderUILang_CN
 	MilkButtonLang_US=MilkButtonLang_CN
+	Dcraft_MediaPlayerUILang_US=Dcraft_MediaPlayerUILang_CN
 		}
 		if(ModPE.getLanguage()=="en_US"){
 			Dcraft_StartUILang_US=Dcraft_StartUILang_US_backup
@@ -409,6 +380,7 @@ function Dcraft_LanguageChange(){
 			Dcraft_UpdateHelperUILang_US=Dcraft_UpdateHelperUILang_US_backup
 			Dcraft_FontDownloaderUILang_US=Dcraft_FontDownloaderUILang_US_backup
 			MilkButtonLang_US=MilkButtonLang_US_backup
+			Dcraft_MediaPlayerUILang_US=Dcraft_MediaPlayerUILang_US_backup
 			}
 			}
 //JumpToURL
@@ -420,6 +392,8 @@ function Dcraft_Update(){
 	if(package!="net.zhuoweizhang.mcpelauncher.pro"&&package!="net.zhuoweizhang.mcpelauncher"&&!UpdateCheck&&!isUpdateFile){
 		}
 		else{
+			//Dcraft_AutoCheckUpdate_Introduction()
+			Dcraft_AutoCheckUpdate_adfly()
 			Dcraft_AutoCheckUpdate_version()
 			}
 			}
@@ -442,7 +416,7 @@ ctx.startActivity(data)
 }
 //Dcraft_Update_FileCheck
 function Dcraft_Update_FileCheck(){
-	var a=new java.io.File(sdcard+"/games/com.mojang/Dcraft_UpdateFileCheck.txt")
+	var a=new java.io.File(sdcard+"/games/DcraftData/Dcraft_UpdateFileCheck.txt")
 	if(package=="net.zhuoweizhang.mcpelauncher.pro"||package=="net.zhuoweizhang.mcpelauncher"){
 	if(!a.exists()){
 		Dcraft_UpdateHelperUI()
@@ -456,15 +430,16 @@ function Dcraft_Update_FileCheck(){
 //Dcraft_UpdateHelper_writeFile
 function Dcraft_UpdateHelper_writeFile(){
 	var data=""
-	data=data+UpdateCheck+"I"
-	writetxt(sdcard+"/games/com.mojang/Dcraft_UpdateFileCheck.txt",data)
+	data=data+UpdateCheck+"I"+AutoCheckUpdateTime+"I"
+	writetxt(sdcard+"/games/DcraftData/Dcraft_UpdateFileCheck.txt",data)
 	}
 //Dcraft_UpdateHelper_readFile
 function Dcraft_UpdateHelper_readFile(){
-	var data=readtxt(sdcard+"/games/com.mojang/Dcraft_UpdateFileCheck.txt");
+	var data=readtxt(sdcard+"/games/DcraftData/Dcraft_UpdateFileCheck.txt");
 	data+=""
 	data=data.split("I")
 	UpdateCheck=data[0]
+	AutoCheckUpdateTime=data[1]
 	}
 //Dcraft_FontCheck
 function Dcraft_FontCheck(){
@@ -554,7 +529,7 @@ add人模型(人模型)
 function Dcraft_Trick(){}
 //Dcraft_modLoad
 function Dcraft_modLoad(){
-	var a=new java.io.File(sdcard+"/games/Dcraftmod/main.dmod")
+	var a=new java.io.File(sdcard+"/games/DcraftData/Dcraftmod/main.dmod")
 	if(a.exists()){
 		ShowMessage("Loading mod",0)
 		Dcraft_readmod()
@@ -562,7 +537,7 @@ function Dcraft_modLoad(){
 		}
 //Dcraft_readmod
 function Dcraft_readmod(){
-		var a=new java.io.File(sdcard+"/games/Dcraftmod/main.dmod")
+		var a=new java.io.File(sdcard+"/games/DcraftData/Dcraftmod/main.dmod")
 		var reader=new java.io.InputStreamReader(new java.io.FileInputStream(a))
 		var readerB=new java.io.BufferedReader(reader)
 		var line=""
@@ -571,33 +546,140 @@ function Dcraft_readmod(){
 		var d=mdata[0]+""
 		return d
 		}
+//Dcraft_CreateSaveFile
+function Dcraft_CreateSaveFile(){
+	var a=new java.io.File(sdcard+"/games/DcraftData")
+	if(!a.exists()){
+		a.mkdirs()
+		}
+		}
+//Dcraft_AutoCheckUpdate_adfly
+function Dcraft_AutoCheckUpdate_adfly()
+{
+	try
+	{
+		var url = new java.net.URL("https://raw.githubusercontent.com/KenMizz/Dcraft/master/adfly");
+		var connection = url.openConnection();
+		 
+		var inputStream = connection.getInputStream();
+		 
+		var loadedlink = "";
+		var bufferedlinkReader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
+		var rowlink = "";
+
+		while((rowlink = bufferedlinkReader.readLine()) != null)
+		{
+			loadedlink += rowlink;
+		}
+		latestlink = loadedlink.split(" ")[0];
+		adfly=latestlink
+		bufferedlinkReader.close();
+
+	}catch(err)
+	{
+		ctx.runOnUiThread(new java.lang.Runnable()
+		{
+			run: function()
+			{
+				print(Dcraft_UpdateCheckUILang_US[6])
+			}
+		});
+	} 
+}
+//Dcraft_AutoCheckUpdate_Introduction
+function Dcraft_AutoCheckUpdate_Introduction()
+{
+	try
+	{
+		var url = new java.net.URL("https://raw.githubusercontent.com/KenMizz/Dcraft/master/Introduction");
+		var connection = url.openConnection();
+		 
+		var inputStream = connection.getInputStream();
+		 
+		var loadedIntroduction = "";
+		var bufferedIntroductionReader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
+		var rowIntroduction = "";
+
+		while((rowIntroduction = bufferedIntroductionReader.readLine()) != null)
+		{
+			loadedIntroduction += rowIntroduction;
+		}
+		latestIntroduction = loadedIntroduction.split(" ")[0];
+		Introduction=latestIntroduction
+		bufferedIntroductionReader.close();
+
+	}catch(err)
+	{
+		ctx.runOnUiThread(new java.lang.Runnable()
+		{
+			run: function()
+			{
+				print(Dcraft_UpdateCheckUILang_US[6])
+			}
+		});
+	} 
+}
+//notify(function from JsIDE,author by 沈士超ssc)
+function notify(main,title,content,http)
+	{
+		var hellomc=com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
+		var intent=new android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse(http))
+		var pi=android.app.PendingIntent.getActivity(hellomc,0,intent,0)
+		hellomc.runOnUiThread(new java.lang.Runnable()
+			{
+				run: function()
+					{
+						var nm=hellomc.getSystemService(hellomc.NOTIFICATION_SERVICE)
+						var notify=new android.app.Notification(android.R.drawable.btn_dialog,main,0);
+						notify.defaults=android.app.Notification.DEFAULT_SOUND
+						notify.setLatestEventInfo(hellomc,title,content,pi);
+						nm.notify(0,notify);
+					}
+			})
+	}
+//Dcraft_SaveLastPlaySource
+function Dcraft_SaveLastPlaySource(){
+	var data=""
+	data=data+LastPlaySourceText+"I"
+	writetxt(sdcard+"/games/DcraftData/LastPlaySource.txt",data)
+	}
+//Dcraft_readLastPlaySource
+function Dcraft_readLastPlaySource(){
+	var a=new java.io.File(sdcard+"/games/DcraftData/LastPlaySource.txt")
+	if(a.exists()){
+	var data=readtxt(sdcard+"/games/DcraftData/LastPlaySource.txt")
+	data=data.split("I")
+	LastPlaySourceText=data[0]
+	}
+	}
+//Dcraft_SpawnDreamWorld
+function Dcraft_SpawnDreamWorld(){}
 /*functions(Blocklauncher)*/
 //newLevel
 function newLevel(){
 Dcraft_LanguageChange()
-Dcraft_modLoad()
+Dcraft_CreateSaveFile()
 Dcraft_Update_FileCheck()
 Dcraft_FontCheck()
 Dcraft_StartUI()
 Dcraft_SettingsFileCheck()
-if(StopButton_Show){
-	Dcraft_StopGameButton()
-	}
+Dcraft_readLastPlaySource()
 	}
 //leaveGame
 function leaveGame(){
 	print(msg)
 	dismissUI(StopGameButton)
+	Dcraft_SaveLastPlaySource()
 	}
 //useItem
 function useItem(x,y,z,i,b){
-	if(i==1512&&b==248&&Level.getData(x,y,z)==1&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
+	if(i==1512&&b==130&&Level.getData(x,y,z)==1&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
 		money=Player.getCarriedItemCount()
 		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
 		Dcraft_VendingMachineUI()
 		}
-	if(i==1512&&b==248&&Level.getData(x,y,z)==0&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
+	if(i==1512&&b==130&&Level.getData(x,y,z)==0&&!Entity.isSneaking(getPlayerEnt())&&VendingMachineCheck){
 		money=Player.getCarriedItemCount()
 		DrinkText=VendingMachineUILang_US[1]
 		DrinkCheck=0
@@ -615,8 +697,8 @@ function useItem(x,y,z,i,b){
 					Level.playSound(x,y,z,"step.gravel",1000)
 					}
 					if(i==1510&&!Entity.isSneaking(getPlayerEnt())&&getTile(x,y+2,z)==0){
-						setTile(x,y+1,z,248,0)
-						setTile(x,y+2,z,248,1)
+						setTile(x,y+1,z,130,0)
+						setTile(x,y+2,z,130,1)
 						addItemInventory(1510,-1,0)
 						}
 						if(i==1515){
@@ -677,59 +759,50 @@ function useItem(x,y,z,i,b){
 														if(i==267&&Debug){
 															KenMizz=Level.spawnMob(x,y+1,z,EntityType.VILLAGER,"mob/pete with glasses.png")
 															Entity.setRenderType(KenMizz,人模型)
-															Entity.setCarriedItem(KenMizz,276,1,0)
 															Entity.setNameTag(KenMizz,"游乐12")
+															Entity.setMaxHealth(KenMizz,3000)
+															Entity.setHealth(KenMizz,3000)
 															}
-															}
+															if(b==137&&Level.getData(x,y,z)==5&&!Entity.isSneaking(getPlayerEnt())){
+																preventDefault()
+																Dcraft_MediaPlayerUI()
+																}
+																}
 //attackHook
 function attackHook(a,v){
 	if(getCarriedItem()==1514){
-		Damage(1514,4,v)
+		Damage(1514,3,v)
 		Damagedown(300,1)
 		}
-			if(getCarriedItem()==1515){
-				Entity.setFireTicks(v,6)
-				Damagedown(128,1)
+		if(getCarriedItem()==325&&Entity.getNameTag(v)=="ChocolateCow"){
+			Entity.setCarriedItem(getPlayerEnt(),1506,1,0)
+			}
+			if(getCarriedItem()==329){
+				preventDefault()
+				rideAnimal(a,v)
 				}
-				if(StopGameCheck){
+				if(Entity.getNameTag(v)=="游乐12"&&getCarriedItem()!=1513){
 					preventDefault()
+					Entity.setHealth(a,0)
+					ShowMessage("don't try to challenge me,I'm author",0)
 					}
-					if(getCarriedItem()==325&&Entity.getNameTag(v)=="ChocolateCow"){
-						preventDefault()
-						Entity.setCarriedItem(getPlayerEnt(),1015,1,0)
-						}
-						if(getCarriedItem()==1513&&Entity.getNameTag(v)=="游乐12"){
-							preventDefault()
-							Entity.remove(v)
-							Dcraft_Trick()
-							}
-							else{
-								preventDefault()
-								}
-								if(getCarriedItem()==329){
-									preventDefault()
-									rideAnimal(a,v)
-									}
-									}
+					}
 //destroyBlock
 function destroyBlock(x,y,z,s){
-	if(getTile(x,y,z)==248&&Level.getData(x,y,z)==0){
+	if(getTile(x,y,z)==130&&Level.getData(x,y,z)==0){
 		Level.destroyBlock(x,y,z,false)
 		Level.destroyBlock(x,y+1,z,false)
 		Level.dropItem(x,y,z,0,1510,1,0)
 		}
-		if(getTile(x,y,z)==248&&Level.getData(x,y,z)==1){
+		if(getTile(x,y,z)==130&&Level.getData(x,y,z)==1){
 			Level.destroyBlock(x,y,z,false)
 			Level.destroyBlock(x,y-1,z,false)
 			Level.dropItem(x,y,z,0,1510,1,0)
 			}
-			if(getTile(x,y,z)==249&&Level.getData(x,y,z)==0&&Level.getGameMode()==0){
+			if(getTile(x,y,z)==137&&Level.getData(x,y,z)==0&&Level.getGameMode()==0){
 				Level.destroyBlock(x,y,z,false)
 				Level.dropItem(x,y,z,0,1011,1,0)
 				}
-				if(StopGameCheck){
-					preventDefault()
-					}
 					if(getTile(x,y,z)==36){
 						Level.destroyBlock(x,y,z,false)
 						}
@@ -742,14 +815,24 @@ function destroyBlock(x,y,z,s){
 //procCmd
 function procCmd(cmd){
 	var Data=cmd.split(" ")
-	if(Data[0]=="clear"){
+	if(Data[0]=="clear"&&Debug){
 		clearInventory()
 		ShowMessage("Successful!",0)
 			}
-			}
+			if(Data[0]=="gamemode"&&Debug){
+				if(Data[1]!=null){
+					Level.setGameMode(parseInt(Data[1]))
+					}
+					}
+					if(Data[0]=="setTime"&&Debug){
+						if(Data[1]!=null){
+							Level.setTime(parseInt(Data[1]))
+							}
+							}
+							}
 //redstoneUpdateHook
 function redstoneUpdateHook(x, y, z, newCurrent, someBooleanIDontKnow, blockId, blockData){
-	if(blockId==248&&newCurrent==15){
+	if(blockId==130&&newCurrent==15){
 		VendingMachineCheck=true
 		}
 		else{
@@ -759,6 +842,14 @@ function redstoneUpdateHook(x, y, z, newCurrent, someBooleanIDontKnow, blockId, 
 //modTick
 function modTick(){
 	SpawnOre()
+	var UpdateTime=0
+	if(UpdateCheck){
+	UpdateTime++
+	if(UpdateTime==AutoCheckUpdateTime){
+		UpdateTime=0
+		Dcraft_AutoCheckUpdate_version()
+	}
+	}
 	}
 //eatHook
 function eatHook(h,s){
@@ -776,24 +867,35 @@ function eatHook(h,s){
 function entityAddedHook(e){
 	if(Entity.getMobSkin(e)=="mob/ChocolateCow"){
 		Entity.setMobSkin(e,"mob/ChocolateCow.png")
+		Entity.setNameTag(e,"ChocolateCow")
 		}
 		if(Entity.getEntityTypeId(e)==EntityType.COW){
 			if(Math.random()*100<5){
 				ChocolateCow=Level.spawnMob(Entity.getX(e),Entity.getY(e)+1,Entity.getZ(e),EntityType.COW,"mob/ChocolateCow.png")
+				Entity.setNameTag(ChocolateCow,"ChocolateCow")
 				}
 				}
-				}
+				if(Entity.getNameTag(e)=="游乐12"){
+					Entity.setMobSkin(e,"mob/pete with glasses.png")
+					Entity.setRenderType(e,人模型)
+					Entity.setMaxHealth(e,3000)
+					Entity.setHealth(e,3000)
+					}
+					}
 //deathHook
 function deathHook(m,v){
-	if(Entity.getMobSkin(v)=="mob/ChocolateCow.png"){
+	if(Entity.getNameTag(v)=="ChocolateCow"){
 		if(Math.random()*100<80){
 		Level.dropItem(Entity.getX(v),Entity.getY(v),Entity.getZ(v),1018,1,0)
+		}
 		}
 		if(Entity.getEntityTypeId(v)==getPlayerEnt()){
 			Level.spawnMob(Entity.getX(v),Entity.getY(v)+1,Entity.getZ(v),EntityType.ZOMBIE)
 			}
-			}
-			}
+			if(Entity.getNameTag(v)=="游乐12"){
+				Level.dropItem(Entity.getX(v),Entity.getY(v)+1,Entity.getZ(v),0,1522,1,0)
+				}
+				}
 /*Items*/
 //food
 addFood(1500,"ApplePie",0,6,ItemLang_US[0],64)//Apple Pie
@@ -807,6 +909,7 @@ addFood(1507,"ChocolateBar",0,4,ItemLang_US[17],64)//Chocolate
 addFood(1508,"CookedCarrot",0,5,ItemLang_US[18],64)//Cooked Carrot
 addFood(1509,"ChocolateApple",0,5,ItemLang_US[19],64)//Chocolate Apple
 addFood(1521,"apple",0,10,ItemLang_US[20],64)//Big Apple
+addFood(1522,"diamond",0,50,ItemLang_US[21],1)//Diamond(try to eat)
 //normal
 addItem(1510,"Vending machine",0,ItemLang_US[5],1,ItemCategory.FOOD,EnchantType.withoutEnchant)//Vending Machine
 addItem(1511,"tin_ingot",0,ItemLang_US[6],64,ItemCategory.FOOD,EnchantType.withoutEnchant)//Tin Ingot
@@ -825,18 +928,18 @@ defineArmor(1520,"tin_boots",0,ItemLang_US[13],"armor/tin_2.png",200,300,ArmorTy
 //Seed
 /*Blocks*/
 //Machine
-Block.defineBlock(248,"Machine",[["machine",6/*底部*/],["machine",5/*顶部*/],["machine",3],["machine",5],["machine",5],["machine",5],["machine",6/*底部*/],["machine",6/*顶部*/],["machine",2],["machine",6],["machine",6],["machine",6]],1,false)
-Block.setLightOpacity(248,1)
-Block.setRedstoneConsumer(248,true)
+Block.defineBlock(130,"Machine",[["machine",6/*底部*/],["machine",5/*顶部*/],["machine",3],["machine",5],["machine",5],["machine",5],["machine",6/*底部*/],["machine",6/*顶部*/],["machine",2],["machine",6],["machine",6],["machine",6]],1,false)
+Block.setLightOpacity(130,1)
+Block.setRedstoneConsumer(130,true)
 //Ore
-Block.defineBlock(249,"Ore",[["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["CoalFurnace_side",0],["CoalFurnace_top",0],["CoalFurnace",0],["CoalFurnace_side",0],["CoalFurnace_side",0],["CoalFurnace_side",0],["experience_saver_bottom",0],["experience_saver_bottom",0],["experience_saver",0],["experience_saver",0],["experience_saver",0],["experience_saver",0],["stone_mill_bottom",0],["stone_mill_top",0],["stone_mill_side",0],["stone_mill_side",0],["stone_mill_side",0],["stone_mill_side",0],["computer_bottom",0],["computer_top",0],["computer",0],["computer_back",0],["computer_side",0],["computer_side",0]],15,false)
-Block.setLightOpacity(249,1)
-Player.addItemCreativeInv(249,1,0)
-Player.addItemCreativeInv(249,1,1)
-Player.addItemCreativeInv(249,1,2)
-Player.addItemCreativeInv(249,1,3)
-Player.addItemCreativeInv(249,1,4)
-Item.setCategory(249,ItemCategory.MATERIAL)
+Block.defineBlock(137,"Ore",[["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["tin_ore",0],["CoalFurnace_side",0],["CoalFurnace_top",0],["CoalFurnace",0],["CoalFurnace_side",0],["CoalFurnace_side",0],["CoalFurnace_side",0],["experience_saver_bottom",0],["experience_saver_bottom",0],["experience_saver",0],["experience_saver",0],["experience_saver",0],["experience_saver",0],["stone_mill_bottom",0],["stone_mill_top",0],["stone_mill_side",0],["stone_mill_side",0],["stone_mill_side",0],["stone_mill_side",0],["computer_bottom",0],["computer_top",0],["computer",0],["computer_back",0],["computer_side",0],["computer_side",0],["jukebox_side",0],["jukebox_top",0],["jukebox_side",0],["jukebox_side",0],["jukebox_side",0],["jukebox_side",0]],15,false)
+Block.setLightOpacity(137,1)
+Player.addItemCreativeInv(137,1,0)
+Player.addItemCreativeInv(137,1,1)
+Player.addItemCreativeInv(137,1,2)
+Player.addItemCreativeInv(137,1,3)
+Player.addItemCreativeInv(137,1,4)
+Player.addItemCreativeInv(137,1,5)
 //Cake
 Block.defineBlock(36,"Cake",[/*ChocolateCake1_start*/["ChocolateCake_bottom",0],["ChocolateCake_top",0],["ChocolateCake_side",0],["ChocolateCake_side",0],["ChocolateCake_side",0],["ChocolateCake_side",0]/*ChocolateCake1_End*/,/*ChocolateCake2_Start*/["ChocolateCake_bottom",0],["ChocolateCake_top",0],["ChocolateCake_inner",0],["ChocolateCake_side",0],["ChocolateCake_side",0],["ChocolateCake_side",0]/*ChocolateCake2_End*/,/*ChocolateCake3_Start*/["ChocolateCake_bottom",0],["ChocolateCake_top",0],["ChocolateCake_inner",0],["ChocolateCake_side",0],["ChocolateCake_side",0],["ChocolateCake_side",0]/*ChocolateCake3_End*/,/*ChocolateCake4_Start*/["ChocolateCake_bottom",0],["ChocolateCake_top",0],["ChocolateCake_inner",0],["ChocolateCake_side",0],["ChocolateCake_side",0],["ChocolateCake_side",0]/*ChocolateCake4_End*/,/*CarrotCake1_Start*/["CarrotCake_bottom",0],["CarrotCake_top",0],["CarrotCake_side",0],["CarrotCake_side",0],["CarrotCake_side",0],["CarrotCake_side",0]/*CarrotCake1_End*/,/*CarrotCake2_Start*/["CarrotCake_bottom",0],["CarrotCake_top",0],["CarrotCake_inner",0],["CarrotCake_side",0],["CarrotCake_side",0],["CarrotCake_side",0]/*CarrotCake2_End*/,/*CarrotCake3_Start*/["CarrotCake_bottom",0],["CarrotCake_top",0],["CarrotCake_inner",0],["CarrotCake_side",0],["CarrotCake_side",0],["CarrotCake_side",0]/*CarrotCake3_End*/,/*CarrotCake4_Start*/["CarrotCake_bottom",0],["CarrotCake_top",0],["CarrotCake_inner",0],["CarrotCake_side",0],["CarrotCake_side",0],["CarrotCake_side",0]/*CarrotCake4_End*/],92,false)
 Block.setShape(36, 1/16, 0, 1/16, 15/16, 0.5, 15/16,0)
@@ -1173,6 +1276,7 @@ return false;
 }});
 SumbitButton.setOnClickListener(new android.view.View.OnClickListener(){
 onClick: function(v) {
+Level.playSound(getPlayerX(),getPlayerY(),getPlayerZ(),"random.click",1000)
 if(DrinkCheck==0&&money>=2){
 	addItemInventory(1502,1,0)
 	money=money-2
@@ -1589,11 +1693,31 @@ button2.setText(Dcraft_UpdateCheckUILang_US[5]);
 button2.setTextSize(20);
 button2.setTextColor(getColor("#7C00FF"));
 button2.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+	if(checkBox.isChecked()){
+		JumpToURL(adfly)
+		}
+		else{
 JumpToURL("https://github.com/KenMizz/Download/archive/master.zip")
+}
 }}));
+var checkBox=new android.widget.CheckBox(ctx)
+checkBox.setChecked(false)
+checkBox.setText(Dcraft_UpdateCheckUILang_US[8])
+checkBox.setTextSize(20)
+var text3=new android.widget.TextView(ctx);
+text3.setText(Dcraft_UpdateCheckUILang_US[9]);
+text3.setTextSize(10);
+text3.setTextColor(getColor("#FFC500"));
+var text4=new android.widget.TextView(ctx);
+text4.setText(Introduction);
+text4.setTextSize(20);
+text4.setTextColor(getColor("#0061FF"));
 layout.addView(layout3);
 layout2.addView(text);
 layout2.addView(text2)
+layout2.addView(text4)
+layout2.addView(checkBox)
+layout2.addView(text3)
 layout2.addView(button);
 layout2.addView(button2);
 layout3.addView(layout2);
@@ -1906,6 +2030,100 @@ layout2.addView(editText);
 layout2.addView(editText2);
 layout2.addView(editText3)
 layout2.addView(button);
+layout3.addView(layout2);
+window.setContentView(layout);
+window.show();
+}}))}
+//Dcraft_MediaPlayerUI
+function Dcraft_MediaPlayerUI(){
+var ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
+ctx.runOnUiThread(new java.lang.Runnable({run:function(){
+window=new android.app.Dialog(ctx);
+window.setTitle(Dcraft_MediaPlayerUILang_US[0]);
+var textParams=new android.widget.LinearLayout.LayoutParams(android.widget.RelativeLayout.LayoutParams.WRAP_CONTENT,android.widget.RelativeLayout.LayoutParams.WRAP_CONTENT);
+textParams.setMargins(dip2px(ctx,5),0,0,0);
+var layout=new android.widget.LinearLayout(ctx);
+layout.setOrientation(1);
+var layout2=new android.widget.LinearLayout(ctx);
+layout2.setOrientation(1);
+var layout3=new android.widget.ScrollView(ctx);
+var text=new android.widget.TextView(ctx);
+text.setText(Dcraft_MediaPlayerUILang_US[1]);
+text.setTextSize(20);
+text.setTextColor(getColor("#009FFF"));
+text.setLayoutParams(textParams);
+var button=new android.widget.Button(ctx);
+button.setText(Dcraft_MediaPlayerUILang_US[3]);
+button.setTextSize(20);
+button.setTextColor(getColor("#FFD100"));
+button.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+window.dismiss()
+if(checkBox.isChecked()&&!isPlayingMusic){
+	isPlayingMusic=true
+		var a=editText.getText()
+		SourceText=a
+		LastPlaySourceText=a
+		Dcraft_SaveLastPlaySource()
+		MusicPlayer.setDataSource(sdcard+a)
+		MusicPlayer.prepare()
+		MusicPlayer.start()
+		MusicPlayer.setLooping(true)
+		}
+		else if(!checkBox.isChecked()&&!isPlayingMusic){
+			isPlayingMusic=true
+			var a=editText.getText()
+			SourceText=a
+			LastPlaySourceText=a
+			Dcraft_SaveLastPlaySource()
+		MusicPlayer.setDataSource(sdcard+a)
+		MusicPlayer.prepare()
+		MusicPlayer.start()
+		MusicPlayer.setLooping(false)
+		}
+}}));
+var button2=new android.widget.Button(ctx);
+button2.setText(Dcraft_MediaPlayerUILang_US[4]);
+button2.setTextColor(getColor("#0900FF"));
+button2.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+window.dismiss()
+if(isPlayingMusic){
+isPlayingMusic=false
+MusicPlayer.stop()
+MusicPlayer.release()
+}
+else{
+	ShowMessage(Dcraft_MediaPlayerUILang_US[7],3)
+	}
+}}));
+var editText=new android.widget.EditText(ctx);
+editText.setHint(Dcraft_MediaPlayerUILang_US[2]);
+editText.setText(SourceText)
+editText.setTextSize(20);
+editText.setTextColor(getColor("#FF0500"));
+var checkBox=new android.widget.CheckBox(ctx)
+checkBox.setChecked(false)
+checkBox.setText(Dcraft_MediaPlayerUILang_US[5])
+checkBox.setTextSize(20)
+checkBox.setTextColor(getColor("#81FF00"))
+var text2=new android.widget.TextView(ctx)
+text2.setText(""+Dcraft_MediaPlayerUILang_US[10]+""+LastPlaySourceText+"")
+text2.setTextSize(20)
+text2.setTextColor(getColor("#FFD500"))
+var button3=new android.widget.Button(ctx)
+button3.setText(Dcraft_MediaPlayerUILang_US[11])
+button3.setTextSize(20)
+button3.setTextColor(getColor("#00FF9E"))
+button3.setOnClickListener(new android.view.View.OnClickListener({onClick:function(){
+	editText.setText(LastPlaySourceText)
+}}));
+layout.addView(layout3);
+layout2.addView(text);
+layout2.addView(editText);
+layout2.addView(text2)
+layout2.addView(checkBox)
+layout2.addView(button);
+layout2.addView(button2);
+layout2.addView(button3)
 layout3.addView(layout2);
 window.setContentView(layout);
 window.show();
