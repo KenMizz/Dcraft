@@ -21,3 +21,115 @@ License details:
 
 No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits. 
 */
+/*int*/
+//version
+const CurrentVersion="1.0";
+var NewVersion="unknown";
+//Thread
+const ctx=com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
+//sdcard
+var sdcard=android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+//CurrentFolderPath
+const DcraftFolder=sdcard+"/games/com.mojang/Dcraft";
+const ModFolder=sdcard+"/games/com.mojang/Dcraft/Mods";
+//GameMode
+const GameMode={
+    SURVIVAL:0,
+    CREATIVE:1
+}
+//AutoID
+var AutoID=[];
+//Debug
+const DebugMode=true;
+const isAutoCheckUpdate=true;
+//Weapon
+var WeaponData=[];
+//Tool
+var ToolData=[];
+const ToolType={
+    SWORD:1,
+    AXE:2,
+    PICKAXE:3,
+    SHOVEL:4,
+    NULL:5
+}
+/*functions(custom)*/
+//dip2px
+function dip2px(ctx,dips){
+    return Math.ceil(dips*ctx.getResources().getDisplayMetrics().density)
+}
+//getColor
+function getColor(HTMLColor){
+    return android.graphics.Color.parseColor(HTMLColor)
+}
+//ID
+function ID(){
+    for(var i=0;i==3000;i++){
+        if(!Item.isValidItem(i)){
+            AutoID.push(i)
+            print(i);
+        }
+    }
+}
+//LanguageChange
+function LanguageChange(){
+    
+}
+//defineTool
+function defineTool(toolid,tooltexturename,toolmeta,toolname,toolmaxdamage,tooldamage,tooltype,canbreak){
+    try{
+        if(tooltexturename==null){
+            tooltexturename="apple";
+        }
+        if(toolmeta==null){
+            toolmeta=0;
+        }
+        if(toolname==null){
+            toolname="No Name";
+        }
+        if(toolmaxdamage==null){
+            toolmaxdamage=100;
+        }
+        if(tooldamage==null){
+            tooldamage=1;
+        }
+        if(tooltype==null){
+            tooltype=ToolType.NULL;
+        }
+        ToolData.push({ToolID:toolid,ToolMeta:toolmeta,ToolMaxDamage:toolmaxdamage,ToolDamage:tooldamage,ToolType:tooltype,CanBreak:canbreak});
+    }
+    catch(err){
+        errText=err;
+        errorUI();
+    }
+}
+/*functions(Blocklauncher)*/
+//newLevel
+function newLevel(){
+    Test();
+}
+/*Test*/
+function Test(){
+    var test=new Button("qwq",20,"#ffffff");
+    test.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.RIGHT,0,0);
+}
+/*Lib*/
+//Button
+function Button(ButtonText,ButtonTextSize,ButtonColor,ButtonWidth,ButtonHeight){
+    if(ButtonText==null){
+        ButtonText="No Text";
+    }
+    if(ButtonTextSize==null){
+        ButtonTextSize=20;
+    }
+    if(ButtonColor==null){
+        ButtonColor="#ffffff"//required html color code
+    }
+    var Button=new android.widget.Button(ctx);
+    Button.setText(ButtonText);
+    Button.setTextSize(ButtonTextSize);
+    Button.setTextColor(getColor(ButtonColor));
+    Button.setWidth(dip2px(ctx,ButtonWidth));
+    Button.setHeight(dip2px(ctx,ButtonHeight));
+    //Button.setBackground(Background_MinecraftButton);
+}
