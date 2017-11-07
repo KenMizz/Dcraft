@@ -106,30 +106,6 @@ function defineTool(toolid,tooltexturename,toolmeta,toolname,toolmaxdamage,toold
 /*functions(Blocklauncher)*/
 //newLevel
 function newLevel(){
-    Test();
+    //TODO
 }
-/*Test*/
-function Test(){
-    var test=new Button("qwq",20,"#ffffff");
-    test.showAtLocation(ctx.getWindow().getDecorView(), android.view.Gravity.CENTER | android.view.Gravity.RIGHT,0,0);
-}
-/*Lib*/
-//Button
-function Button(ButtonText,ButtonTextSize,ButtonColor,ButtonWidth,ButtonHeight){
-    if(ButtonText==null){
-        ButtonText="No Text";
-    }
-    if(ButtonTextSize==null){
-        ButtonTextSize=20;
-    }
-    if(ButtonColor==null){
-        ButtonColor="#ffffff"//required html color code
-    }
-    var Button=new android.widget.Button(ctx);
-    Button.setText(ButtonText);
-    Button.setTextSize(ButtonTextSize);
-    Button.setTextColor(getColor(ButtonColor));
-    Button.setWidth(dip2px(ctx,ButtonWidth));
-    Button.setHeight(dip2px(ctx,ButtonHeight));
-    //Button.setBackground(Background_MinecraftButton);
-}
+/*UI*/
